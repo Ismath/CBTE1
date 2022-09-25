@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+  <head>
+    <title>Website raiting form</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <style>
+#rating_bar {
+    width:100px;
+    height:100px;
+    margin: 4px 175px !important;
+    display:inline-block;
+    display:inline;
+}
+#rating_bar > span:before {
+    content:'O';
+    color: #c7c5c5;
+    cursor:pointer;
+    font-size:3em;
+}
+#rating_bar:hover > span:before {
+    color: #4bce32;
+}
+
+#rating_bar > span:hover ~ span:before {
+    color: #c7c5c5;
+}
+  </style>
+  </head>
+  <body>
+<div id="rating_bar">
+    <span id="rate_1"></span>
+    <span id="rate_2"></span>
+    <span id="rate_3"></span>
+    <span id="rate_4"></span>
+    <span id="rate_5"></span>
+</div>
+  </body>
+</html>
