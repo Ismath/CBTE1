@@ -32,6 +32,7 @@ urlpatterns = [
     path('signup',views.userregistration),
     path('login',views.login, name = 'login'),
     path('logout',views.logout,name = 'logout'),
+    path('reporting',views.reporting,name = 'reporting'),
     #path('individualConsumption',views.individualConsumption,name = 'individualConsumption'),
     path(r'api/t_user', views.t_userApi),
 
@@ -44,7 +45,8 @@ urlpatterns = [
     path(r'api/productProvider/<int:id>', ProductProvider.as_view()),
     #path('productProvider',views.productProvider),
     #path('showemp',views.showEmp),
-    path('rat',views.rat, name ='rat'),
+    path('rat/<int:id>',views.rat),
+    path('productCancel/<int:id>',views.productCancel),
 
     path(r'api/products', views.t_productsApi),
     path(r'api/products', ProductApi.as_view()),

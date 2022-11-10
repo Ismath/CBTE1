@@ -186,61 +186,21 @@ opacity: 0.4;
         <div class="grade-type">
         <div  class="info-item">
 
-             <select   id = "location" name="location">
-<label class="icon" for="location"></label>
-              <option>Colombo </option>
-              <option>Kandy </option>
-              <option>Galle </option>
-              <option>Ampara </option>
-              <option>Anuradhapura </option>
-              <option>Badulla </option>
-              <option>Batticaloa </option>
-              <option>Gampaha </option>
-              <option>Hambantota </option>
-              <option>Jaffna </option>
-              <option>Kalutara </option>
-              <option>Kegalle </option>
-              <option>Kilinochchi </option>
-              <option>Kurunegala </option>
-              <option>Mannar </option>
-              <option>Matale </option>
-              <option>Matara </option>
-              <option>Moneragala </option>
-              <option>Mullativu </option>
-              <option>Nuwara Eliya </option>
-              <option>Polonnaruwa </option>
-              <option>Puttalam </option>
-              <option>Ratnapura </option>
-              <option>Trincomalee </option>
-              <option>Vavuniya </option>
+   <div>
+  <label for="from">From </label>
+       <input type="date" id="from" name="from"></div>
 
-            </select>
-          </div>
-            </div>
+   <div>
+  <label for="todate"> To </label>
+       <input type="date" id="todate" name="todate"></div>
 
+        </div>
 
-        <h3>Select the product</h3>
-        <div class="grade-type">
-        <div  class="info-item">
+            <button type="submit" href="reporting">Submit</button>
 
-            <select  name="product_id" id="product_id" placeholder="select product id" required/>
-            {% for results in t_products %}
-         <option>{{results.product_id}} {{results.name}}</option>
+    </div>
 
-            {% endfor %}
-            </select>
-          </div>
-            </div>
-
-
-
-         <!-- <div>
-            <input type="radio" value="No" id="volid2" name="vol"/>
-            <label for="volid2" class="radio"> NO </label>
-          </div> -->
-
-        <button type="submit" href="tUserApi">Submit</button>
-      </form>
+</form>
     </div>
   </body>
 </html>

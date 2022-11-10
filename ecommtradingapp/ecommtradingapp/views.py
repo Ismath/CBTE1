@@ -8,7 +8,10 @@ from django.http import HttpResponse, request
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.db import connection
-
+# import the modules
+from pymysql import*
+import xlwt
+import pandas as pd
 
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
@@ -24,20 +27,32 @@ from .serializers import T_announcementsSerializer, T_consumptionSerializer, T_p
     T_product_providerSerializer, T_userSerializer, T_consumptionproductProvider
 from mysql import connector
 
-def rat(request):
-    if request.model == 'POST':
-        rating = request.POST('rating')
-        try:
-            x = request.session['id']
-            patient_edit = t_consumptions.objects.get(id=x)  # object to update
-            patient_edit.rating = rating  # update name
-            patient_edit.save()
-            return render(request, "Consumption.html")
-        except Exception as e:
-            print(e)
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def rat(request,id):
 
-    return render(request, "RatingDetails.html")
+    try:
+        rating1 = request.POST['rating']
+        print("rating1##################" + rating1)
+        #print("id##################" + id)
+        record = t_consumptions.objects.get(id=id)
+        # update name
+        record.rating = rating1
+        record.status = 'Completed'
+        record.save()
+        return redirect('consumption')
+    except Exception as e:
+        print(e)
 
+    return render(request,"RatingDetails.html")
+def productCancel(request,id):
+
+    try:
+        cancel = t_consumptions.objects.get(id=id)
+        cancel.status = 'Canceled'
+        cancel.save()
+        return redirect('consumption')
+    except Exception as e:
+        print(e)
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 def tUserApi(request):
@@ -56,8 +71,9 @@ def tUserApi(request):
 
             cursor = connection.cursor()
 
-            sql =    (" SELECT ecommtradingapp_t_consumptions.product_id_id,ecommtradingapp_t_consumptions.rating,ecommtradingapp_t_product_provider.location from ecommtradingapp_t_consumptions join ecommtradingapp_t_product_provider on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_product_provider.product_id_id where ecommtradingapp_t_consumptions.product_id_id = %s and ecommtradingapp_t_product_provider.location = %s and ecommtradingapp_t_consumptions.status ='Completed' ")
+            sql =    (" SELECT ecommtradingapp_t_consumptions.product_id_id,ecommtradingapp_t_products.name,ecommtradingapp_t_consumptions.rating,ecommtradingapp_t_product_provider.location from ecommtradingapp_t_consumptions inner join ecommtradingapp_t_product_provider on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_product_provider.product_id_id inner join ecommtradingapp_t_products on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_products.product_id where ecommtradingapp_t_consumptions.product_id_id = %s and ecommtradingapp_t_product_provider.location = %s and ecommtradingapp_t_consumptions.status ='Completed' ")
             data = [t,user]
+
             cursor.execute(sql,data)
             res = cursor.fetchall()
 
@@ -104,8 +120,7 @@ def consumption (request) :
     messages.success(request, "registered successfully")
 
     displaydata = t_consumptions.objects.filter(user_id_id = x).values('id','product_id_id','status','user_id_id')
-    displaydata1 = t_consumptions.objects.filter(id = )
-    request.session['id'] = displaydata.id
+
 
     print(displaydata)
 
@@ -133,7 +148,8 @@ def login(request):
                 return render(request=request, template_name="ProductProvider.html")
 
         except Exception as e:
-            messages.success(request,'username and password invalid')
+
+           messages.success(request,'username and password invalid')
 
     return render(request=request, template_name="login2.html")
 
@@ -227,12 +243,6 @@ class ProductProvider(APIView):
 def AddproductProvider(request):
     
     return render(request=request, template_name="search.html")
-
-
-
-
-
-
 
 
 
@@ -362,4 +372,49 @@ def users(request):  # pull data from third party rest api
     # return HttpResponse("Users")
     return render(request, "users.html", {'users': users})
     pass
+
+def reporting(request):
+    #results = t_products.objects.all()
+    # a = t_consumptions.filter()
+
+    if request.method == 'POST':
+        try:
+            import mysql.connector
+            import pandas as pd
+            s = request.POST['from']
+            print (s)
+            #date_sr = pd.to_datetime(pd.Series(s))
+            #change_format = date_sr.dt.strftime('%y-%m-%d')
+
+            e = request.POST['todate']
+            print(e)
+            #date_sr1 = pd.to_datetime(pd.Series(e))
+            #change_format1 = date_sr1.dt.strftime('%y-%m-%d')
+
+            my_conn = mysql.connector.connect(
+                host="localhost",
+                user="root",
+                passwd="",
+                database="cbte1_trading"
+            )
+            ####### end of connection ####
+            my_data = pd.read_sql(
+                " SELECT ecommtradingapp_t_products.name,ecommtradingapp_t_product_provider.location,count(*),ecommtradingapp_t_consumptions.creation_date from ecommtradingapp_t_consumptions inner join ecommtradingapp_t_product_provider on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_product_provider.product_id_id inner join ecommtradingapp_t_products on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_products.product_id where ecommtradingapp_t_consumptions.status ='Completed' and ecommtradingapp_t_consumptions.creation_date between %s and %s group by ecommtradingapp_t_product_provider.location and ecommtradingapp_t_consumptions.product_id_id and ecommtradingapp_t_consumptions.creation_date ",
+                my_conn,params=[s,e])
+            df1 = pd.DataFrame(my_data)
+            df1.to_csv(r'C:\Users\LENOVO\Downloads\exported_data.csv',index=False)
+            print(my_data)
+            #df= (" SELECT ecommtradingapp_t_products.name,ecommtradingapp_t_product_provider.location,count(*) from ecommtradingapp_t_consumptions inner join ecommtradingapp_t_product_provider on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_product_provider.product_id_id inner join ecommtradingapp_t_products on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_products.product_id where ecommtradingapp_t_consumptions.product_id_id = %s and ecommtradingapp_t_product_provider.location = %s and ecommtradingapp_t_consumptions.status ='Completed' group by ecommtradingapp_t_product_provider.location ")
+            #data = [t, user]
+            #cursor.execute(df, data)
+            #res = cursor.fetchall()
+
+            return render(request, "template.html")
+
+        except Exception as e:
+            print(e)
+
+
+    return render(request, "reportingModule.html")
+
 

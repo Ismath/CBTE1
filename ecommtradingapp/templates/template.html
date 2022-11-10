@@ -14,14 +14,16 @@
 <table border='1'>
   <tr>
     <th>Product Id</th>
+      <th>Product Name</th>
     <th>Rating</th>
     <th>location</th>
   </tr>
   {% for displaydata in displaydata %}
   <tr>
     <td> {{displaydata.0}} </td>
-    <td> {{displaydata.1}} </td>
+      <td> {{displaydata.1}} </td>
     <td> {{displaydata.2}} </td>
+    <td> {{displaydata.3}} </td>
     <td>
         <button> <a href ="consumption">  Wait </a></button>
 
