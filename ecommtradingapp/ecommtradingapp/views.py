@@ -101,7 +101,8 @@ def userregistration(request):
         ins.save()
 
         messages.success(request,"registered successfully")
-        return render(request=request, template_name="signup.html")
+        #return render(request=request, template_name="signup.html")
+        return redirect('login')
     return render(request=request, template_name="signup.html")
 
 def consumption (request) :
