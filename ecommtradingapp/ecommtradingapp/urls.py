@@ -21,6 +21,10 @@ from .import views
 from .views import ProductApi, ConsumptionApi, ProductProvider, AnnouncemetAPI, CartItemViews, productAdd
 from rest_framework.routers import DefaultRouter
 
+from django.conf.urls.static import static
+from django.conf import settings
+
+
 
 urlpatterns = [
 
@@ -64,3 +68,4 @@ urlpatterns = [
     path(r'api/announcements/<int:id>', AnnouncemetAPI.as_view()),
 
 ]
+

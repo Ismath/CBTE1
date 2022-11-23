@@ -1,4 +1,4 @@
-import rating as rating
+#import rating as rating
 from MySQLdb import connections
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
@@ -10,7 +10,7 @@ from django.template import loader
 from django.db import connection
 # import the modules
 from pymysql import*
-import xlwt
+#import xlwt
 import pandas as pd
 
 from rest_framework.decorators import api_view
@@ -291,7 +291,7 @@ def productAdd(request):
         ins.save()
 
         messages.success(request,"Product added successfully")
-        return render(request=request, template_name="signup.html")
+        return render(request=request, template_name="addingProduct.html")
     return render(request=request, template_name="addingProduct.html")
 
 
