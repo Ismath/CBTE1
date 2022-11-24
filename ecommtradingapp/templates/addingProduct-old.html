@@ -57,19 +57,6 @@
             <div class="navbar-header">
                 <h2 style="color:#fff; padding-left: 20px; font-weight: bold;">CBR Trading</h2>
             </div>
-
-             {% if request.session.uname  %}
-           <h2 style="color:#fff; padding-right: 20px; font-weight: bold; float: right;">
-        {{request.session.uname}},
-                  <a href="logout" style="color:#fff;">LOGOUT</a>
-               </h2>
-
-                </span>
-        {% else %}
-        {% endif %}
-
-
-
         </div>
     </div>
     <!-- /. NAV TOP  -->
@@ -77,15 +64,10 @@
         <div class="sidebar-collapse">
             <ul class="nav" id="main-menu">
                 <li>
-                    <a href="/signup"><i class="fa fa-table "></i>Register</a>
+                    <a href="/signup"><i class="fa fa-desktop "></i>Register</a>
                 </li>
-
                 <li>
-                    <a href="/displaydata"><i class="fa fa-table "></i>Search</a>
-                </li>
-
-                <li>
-                    <a href="/consumption"><i class="fa fa-table "></i>Consumptions</a>
+                    <a href="/login"><i class="fa fa-table "></i>Login</a>
                 </li>
             </ul>
         </div>
@@ -96,7 +78,7 @@
         <div id="page-inner">
             <div class="row">
                 <div class="col-md-12">
-                    <h4>Search a Product in CBR Trading</h4>
+                    <h4>Add a Product to CBR Trading</h4>
                 </div>
             </div>
             <!-- /. ROW  -->
@@ -107,35 +89,18 @@
                     {% csrf_token %}
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                         <div class="input-group">
-                            <span class="input-group-addon">District</span>
-                            <select name="district" class="form-control" required>
-
-
-              <option value="Batticaloa">Batticaloa </option>
-
-              <option value="Trincomalee">Trincomalee </option>
-              <option value="Ampara">Ampara </option>
-
-            </select>
+                            <span class="input-group-addon">Product Name</span>
+                            <input type="text" class="form-control" placeholder="Product Name" name = "proname" required/>
+                        </div>
+                        <br/>
+                        <div class="input-group">
+                            <span class="input-group-addon">Product Description</span>
+                            <input type="password" class="form-control" placeholder="Product Description" name="prodesc" required/>
                         </div>
                         <br/>
 
-
                         <div class="input-group">
-                            <span class="input-group-addon">Products</span>
-                            <select  name="product_id" class="form-control" required/>
-            {% for results in t_products %}
-         <option value="{{results.product_id}}"> {{results.name}}</option>
-
-            {% endfor %}
-            </select>
-                        </div>
-                        <br/>
-
-
-
-                        <div class="input-group">
-                            <input class="btn btn-default" type="submit" value="Search"/>
+                            <input class="btn btn-default" type="submit" value="Add"/>
                         </div>
 
                     </div>

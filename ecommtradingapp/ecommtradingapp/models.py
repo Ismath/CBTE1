@@ -44,17 +44,17 @@ class t_products(models.Model):
     modification_date = models.DateField(auto_now_add=True)
 
 class t_product_provider(models.Model):
-    t_product_provider_id = models.IntegerField(primary_key=True)
-    enabled = models.CharField(max_length=10)
-    rating = models.IntegerField(200)
+    t_product_provider_id = models.AutoField(primary_key=True)
+    enabled = models.CharField(max_length=10, default='yes')
+    rating = models.IntegerField(default=0)
     location = models.CharField(max_length=100)
     district = models.CharField(max_length=100)
     volunteer = models.CharField(max_length=100)
     description = models.CharField(max_length=400)
     long = models.IntegerField()
     width = models.IntegerField()
-    creation_date = models.DateField()
-    modification_date = models.DateField()
+    creation_date = models.DateField(auto_now_add=True)
+    modification_date = models.DateField(auto_now_add=True)
 
     user_id = models.ForeignKey(t_user,related_name='user', on_delete=models.PROTECT )
     product_id = models.ForeignKey(t_products,related_name='products', on_delete=models.CASCADE)
@@ -76,9 +76,10 @@ class t_consumptions(models.Model):
     end_time = models.TimeField(auto_now_add=True)
     creation_date = models.DateField(auto_now_add=True)
     modification_date = models.DateField(auto_now_add=True)
-    product_id = models.ForeignKey(t_products, related_name='product1',
-                                              on_delete=models.CASCADE)
+    product_id = models.ForeignKey(t_products, related_name='product1', on_delete=models.CASCADE)
     user_id = models.ForeignKey(t_user, related_name='user1', on_delete=models.PROTECT)
+    product_provider_id = models.ForeignKey(t_product_provider, related_name='product_provider1', on_delete=models.PROTECT)
+
 
 
 

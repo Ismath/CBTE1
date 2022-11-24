@@ -35,6 +35,7 @@ urlpatterns = [
     path(r'displaydata',views.tUserApi,name = 'displaydata'),
     path('signup',views.userregistration),
     path('login',views.login, name = 'login'),
+    path('addProductProvider',views.addProductProvider, name = 'addProductProvider'),
     path('logout',views.logout,name = 'logout'),
     path('reporting',views.reporting,name = 'reporting'),
     #path('individualConsumption',views.individualConsumption,name = 'individualConsumption'),

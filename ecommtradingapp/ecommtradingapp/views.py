@@ -65,13 +65,13 @@ def tUserApi(request):
         #t = (product,user)
         try:
             t = request.POST['product_id']
-            user = request.POST['location']
+            user = request.POST['district']
 
             request.session['product_id'] = t
 
             cursor = connection.cursor()
 
-            sql =    (" SELECT ecommtradingapp_t_consumptions.product_id_id,ecommtradingapp_t_products.name,ecommtradingapp_t_consumptions.rating,ecommtradingapp_t_product_provider.location from ecommtradingapp_t_consumptions inner join ecommtradingapp_t_product_provider on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_product_provider.product_id_id inner join ecommtradingapp_t_products on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_products.product_id where ecommtradingapp_t_consumptions.product_id_id = %s and ecommtradingapp_t_product_provider.location = %s and ecommtradingapp_t_consumptions.status ='Completed' ")
+            sql =    ("SELECT pr.name,u.uname, pp.district,pp.location, c.rating, pp.t_product_provider_id, pr.product_id from ecommtradingapp_t_consumptions c, ecommtradingapp_t_product_provider pp, ecommtradingapp_t_user u, ecommtradingapp_t_products pr where c.product_id_id=pr.product_id  and c.user_id_id=u.user_id and c.product_id_id=pp.product_id_id and c.product_provider_id_id=pp.t_product_provider_id and c.product_id_id = %s and pp.district = %s and c.status ='Completed'")
             data = [t,user]
 
             cursor.execute(sql,data)
@@ -83,6 +83,46 @@ def tUserApi(request):
             print (e)
 
     return render(request, "search.html", { "t_products": results})
+
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def addProductProvider(request):
+
+    results = t_products.objects.all()
+    #a = t_consumptions.filter()
+
+    if request.method == 'POST':
+
+        #t = (product,user)
+        try:
+
+            uname = request.session['uname']
+            print(uname)
+
+            x = t_user.objects.get(uname=uname).user_id
+            print(x)
+
+            location = request.POST['location']
+            district = request.POST['district']
+            volunteer = request.POST['volunteer']
+            description = request.POST['description']
+            long = request.POST['long']
+            width = request.POST['width']
+            product_id = request.POST['product_id']
+
+
+            print("djk")
+
+            ins = t_product_provider(location=location, district=district, volunteer=volunteer, description=description, long=long,
+                                     width=width, user_id_id=x, product_id_id=product_id)
+            ins.save()
+
+            print("save##################")
+            return render(request, "ProductProvider.html", {'t_products': results})
+
+        except Exception as e:
+            print (e)
+    print("end#################33")
+    return render(request, "ProductProvider.html", { "t_products": results})
 
 def userregistration(request):
     if request.method == 'POST' :
@@ -144,15 +184,17 @@ def login(request):
             request.session['uname'] =Userdetails.uname
 
             if request.session['utype'] == 'consumer' :
+                print("if$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
                 return redirect('displaydata')
             else:
-                return render(request=request, template_name="ProductProvider.html")
+                print("else$$$$$$$$$$$$$$$$$$$$$$$$$$")
+                return redirect('addProductProvider')
 
         except Exception as e:
 
            messages.success(request,'username and password invalid')
 
-    return render(request=request, template_name="login2.html")
+    return render(request=request, template_name="login.html")
 
 
 def logout(request):
@@ -160,8 +202,8 @@ def logout(request):
         del request.session['uname']
         del request.session['product_id']
     except:
-        return render(request,'index.html')
-    return render(request, 'index.html')
+        return redirect('login')
+    return redirect('login')
 
 
 
