@@ -11,7 +11,11 @@ from django.db import connection
 # import the modules
 from pymysql import*
 #import xlwt
+import numpy as np
 import pandas as pd
+from scipy.spatial import distance
+import matplotlib.pyplot as plt
+import seaborn as sn
 
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
@@ -27,28 +31,28 @@ from .serializers import T_announcementsSerializer, T_consumptionSerializer, T_p
     T_product_providerSerializer, T_userSerializer, T_consumptionproductProvider
 from mysql import connector
 
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+#@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 def rat(request,id):
-
-    try:
-        rating1 = request.POST['rating']
-        print("rating1##################" + rating1)
-        #print("id##################" + id)
-        record = t_consumptions.objects.get(id=id)
-        # update name
-        record.rating = rating1
-        record.status = 'Completed'
-        record.save()
-        return redirect('consumption')
-    except Exception as e:
-        print(e)
+    if request.method == 'POST':
+        try:
+            rating1 = request.POST['rating']
+            print("rating1##################" + rating1)
+            #print("id##################" + id)
+            record = t_consumptions.objects.get(id=id)
+            # update name
+            record.rating = rating1
+            record.status = 'Completed'
+            record.save()
+            return redirect('consumption')
+        except Exception as e:
+            print(e)
 
     return render(request,"RatingDetails.html")
-def productCancel(request,id):
+def cancelConsumption(request,id):
 
     try:
         cancel = t_consumptions.objects.get(id=id)
-        cancel.status = 'Canceled'
+        cancel.status = 'Cancelled'
         cancel.save()
         return redirect('consumption')
     except Exception as e:
@@ -71,13 +75,126 @@ def tUserApi(request):
 
             cursor = connection.cursor()
 
-            sql =    ("SELECT pr.name,u.uname, pp.district,pp.location, c.rating, pp.t_product_provider_id, pr.product_id from ecommtradingapp_t_consumptions c, ecommtradingapp_t_product_provider pp, ecommtradingapp_t_user u, ecommtradingapp_t_products pr where c.product_id_id=pr.product_id  and c.user_id_id=u.user_id and c.product_id_id=pp.product_id_id and c.product_provider_id_id=pp.t_product_provider_id and c.product_id_id = %s and pp.district = %s and c.status ='Completed'")
+            sql =    ("SELECT pr.name,u.uname, pp.district,pp.location,  pp.t_product_provider_id, pr.product_id, c.rating from ecommtradingapp_t_consumptions c, ecommtradingapp_t_product_provider pp, ecommtradingapp_t_user u, ecommtradingapp_t_products pr where c.product_id_id=pr.product_id  and c.product_id_id=pp.product_id_id and c.product_provider_id_id=pp.t_product_provider_id and pp.user_id_id=u.user_id and c.product_id_id = %s and pp.district = %s and c.status ='Completed'")
             data = [t,user]
 
             cursor.execute(sql,data)
             res = cursor.fetchall()
 
-            return render(request, "template.html", {'displaydata': res})
+            print(res);
+
+            sql2 = (
+                "SELECT pr.name,u.uname, pp.district,pp.location, pp.t_product_provider_id, pr.product_id from ecommtradingapp_t_product_provider pp, ecommtradingapp_t_user u, ecommtradingapp_t_products pr where pp.product_id_id=pr.product_id  and pp.user_id_id=u.user_id and pp.product_id_id = %s and pp.district = %s")
+            #data = [t, user]
+
+            cursor2 = connection.cursor()
+            cursor2.execute(sql2, data)
+            probs = cursor2.fetchall()
+
+            print(probs);
+
+            solutions=[]
+            dfSol = pd.DataFrame()
+
+            # [1] Get the input .csv library and problem cases
+            # {pandas.DataFrame}
+            df = pd.DataFrame(res)
+            df.to_csv('input/library.csv', index=False, header=['Product','Provider','District','Address','Product Provider ID','Product ID','Ratings'])
+
+            df2 = pd.DataFrame(probs)
+            df2.to_csv('input/cases.csv', index=False,  header=['Product','Provider','District','Address','Product Provider ID','Product ID'])
+
+            library, cases = pd.read_csv('input/library.csv'), pd.read_csv('input/cases.csv')
+
+            # Print
+            print('\n> Initial Library')
+            print(f'\n{library}')
+            print(f'\n{cases}')
+
+            # Select columns from library to use as base cases, except solutions
+            base = library.iloc[:, range(library.shape[1] - 1)]  # Exclude last column (solution)
+
+            # Print
+            print('\n> Base')
+            print(f'\n{base}')
+
+            # [2] Initial One-hot encoding
+            base = pd.get_dummies(base)
+            problems = pd.get_dummies(cases)
+
+            # Print
+            print('\n> One-hot encoding')
+            print(f'\n{base}')
+            print(f'\n{problems}\n')
+
+            # [3] Calculate
+            # Print
+            print('\n> Calculating\n')
+
+            # Move through all problem cases
+            for i in range(problems.shape[0]):
+                # Print
+                print(f'\n{base} for problem {i}')
+
+                # [3.1] Get inverse covariance matrix for the base cases
+                covariance_matrix = base.cov()  # Covariance
+                inverse_covariance_matrix = np.linalg.pinv(covariance_matrix)  # Inverse
+
+                # [3.2] Get case row to evaluate
+                case_row = problems.loc[i, :]
+
+                # Empty distances array to store mahalanobis distances obtained comparing each library cases
+                distances = np.zeros(base.shape[0])
+
+                # [3.3] For each base cases rows
+                for j in range(base.shape[0]):
+                    # Get base case row
+                    base_row = base.loc[j, :]
+
+                    # [3.4] Calculate mahalanobis distance between case row and base cases, and store it
+                    distances[j] = distance.mahalanobis(case_row, base_row, inverse_covariance_matrix)
+
+                # [3.5] Returns the index (row) of the minimum value in distances calculated
+                min_distance_row = np.argmin(distances)
+
+                # [4] Get solution based on index of found minimum distance, and append it to main library
+                # From cases, append library 'similar' solution
+                case = np.append(cases.iloc[i, :], library.iloc[min_distance_row, -1])
+
+                # Print
+                print(f'> For case/problem {i}: {cases.iloc[i, :].to_numpy()}, solution is {case[-1]}')
+
+                # [5] Store
+                # Get as operable pandas Series
+                case = pd.Series(case, index=library.columns)  # Case with Solution
+                dfSol = dfSol.append(case, ignore_index=True)
+                library = library.append(case, ignore_index=True)  # Append to library
+                # Save 'covariance heat map (biased)' output as file
+                sn.heatmap(np.cov(base, bias=True), annot=True, fmt='g')
+                plt.gcf().set_size_inches(12, 6)
+                plt.title(f'Covariance Heat map #{i} \n Library cases stored {j} - Base to solve problem {i}')
+                plt.savefig(f'output/covariance_heat_map_{i}.png', bbox_inches='tight')
+                plt.close()
+
+                # [6] Reuse
+                base = library.iloc[:, range(library.shape[1] - 1)]  # Exclude last column (solution)
+                base = pd.get_dummies(base)  # Get new one-hot encoded base
+
+            # [7] Output
+            print('\n> Output library')
+            print(f'\n{library}')
+
+            solutions = dfSol.values.tolist()
+
+            # [7] Output
+            print('\n> Output solutions')
+            print(f'\n{solutions}')
+
+
+            # Save 'library' output as file
+            library.to_csv('output/library.csv', index=False)
+
+            return render(request, "template.html", {'displaydata': solutions})
 
         except Exception as e:
             print (e)
@@ -145,6 +262,35 @@ def userregistration(request):
         return redirect('login')
     return render(request=request, template_name="signup.html")
 
+
+def addConsumption (request, productProviderId, productId) :
+
+    uname = request.session['uname']
+    print(uname)
+
+    x = t_user.objects.get(uname = uname) . user_id
+    print(x)
+
+    rating = 0
+    #product_id = request.session['product_id']
+    ins1 = t_consumptions(rating=rating,  user_id_id = x , product_id_id=productId, product_provider_id_id=productProviderId )
+    ins1.save()
+    print("sucess")
+    messages.success(request, "registered successfully")
+    return redirect('consumption')
+    #displaydata = t_consumptions.objects.filter(user_id_id = x).values('id','product_id_id','status','user_id_id')
+
+
+    # print(displaydata)
+    #
+    # template = loader.get_template('Consumption.html')
+    # context = {
+    #     'mymembers': displaydata,
+    #
+    #   }
+    #
+    # return HttpResponse(template.render(context, request))
+
 def consumption (request) :
 
     uname = request.session['uname']
@@ -154,20 +300,30 @@ def consumption (request) :
     print(x)
 
     rating = 0
-    product_id = request.session['product_id']
-    ins1 = t_consumptions(rating=rating,  user_id_id = x , product_id_id=product_id )
-    ins1.save()
-    print("sucess")
-    messages.success(request, "registered successfully")
+    # product_id = request.session['product_id']
+    # ins1 = t_consumptions(rating=rating,  user_id_id = x , product_id_id=product_id )
+    # ins1.save()
+    # print("sucess")
+    # messages.success(request, "registered successfully")
 
-    displaydata = t_consumptions.objects.filter(user_id_id = x).values('id','product_id_id','status','user_id_id')
+    #displaydata = t_consumptions.objects.filter(user_id_id = x).values('id','product_id_id','status','user_id_id')
 
+    cursor = connection.cursor()
+
+    sql = (
+        "SELECT pr.name, (select uname from ecommtradingapp_t_user where user_id=pp.user_id_id) as uname, pp.district,pp.location, c.start_time, c.end_time, c.status, c.rating, pp.t_product_provider_id, pr.product_id, c.id from ecommtradingapp_t_consumptions c, ecommtradingapp_t_product_provider pp, ecommtradingapp_t_user u, ecommtradingapp_t_products pr where c.product_id_id=pr.product_id  and c.product_id_id=pp.product_id_id and c.product_provider_id_id=pp.t_product_provider_id and c.user_id_id=u.user_id and u.user_id=%s")
+    data = [x]
+
+    cursor.execute(sql, data)
+    res = cursor.fetchall()
+
+    print(res);
 
     print(displaydata)
 
     template = loader.get_template('Consumption.html')
     context = {
-        'mymembers': displaydata,
+        'mymembers': res,
 
       }
 
@@ -196,6 +352,9 @@ def login(request):
 
     return render(request=request, template_name="login.html")
 
+
+def index(request):
+    return redirect('login')
 
 def logout(request):
     try:

@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <style>
+body{
+
+	background-color: #f7f6f6;
+}
+
+.card{
+
+	width: 350px;
+	border: none;
+	box-shadow: 5px 6px 6px 2px #e9ecef;
+	border-radius: 12px;
+}
+
+.circle-image img{
+
+	border: 6px solid #fff;
+    border-radius: 100%;
+    padding: 0px;
+    top: -28px;
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 100%;
+    z-index: 1;
+    background: #e7d184;
+    cursor: pointer;
+
+}
+
+
+.dot {
+      height: 18px;
+    width: 18px;
+    background-color: blue;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    border: 3px solid #fff;
+    top: -48px;
+    left: 186px;
+    z-index: 1000;
+}
+
+.name{
+	margin-top: -21px;
+	font-size: 18px;
+}
+
+
+.fw-500{
+	font-weight: 500 !important;
+}
+
+
+.start{
+
+	color: green;
+}
+
+.stop{
+	color: red;
+}
+
+
+.rate{
+
+	border-bottom-right-radius: 12px;
+	border-bottom-left-radius: 12px;
+
+}
+
+
+
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center
+}
+
+.rating>input {
+    display: none
+}
+
+.rating>label {
+    position: relative;
+    width: 1em;
+    font-size: 30px;
+    font-weight: 300;
+    color: #FFD600;
+    cursor: pointer
+}
+
+.rating>label::before {
+    content: "\2605";
+    position: absolute;
+    opacity: 0
+}
+
+.rating>label:hover:before,
+.rating>label:hover~label:before {
+    opacity: 1 !important
+}
+
+.rating>input:checked~label:before {
+    opacity: 1
+}
+
+.rating:hover>input:checked~label:before {
+    opacity: 0.4
+}
+
+
+.buttons{
+	top: 36px;
+    position: relative;
+}
+
+
+.rating-submit{
+	border-radius: 15px;
+	color: #fff;
+	    height: 49px;
+}
+
+
+.rating-submit:hover{
+
+	color: #fff;
+}
+</style>
+	<title>Hello, world!</title>
+  </head>
+<body>
+
+
+ {% if request.session.user_id  %}
+        {{request.session.user_id}}
+        {% else %}
+        {% endif %}
+<p>Loop through the items:</p>
+ <button> <a href ="logout">  logout </a></button>
+
+<table border='1'>
+
+
+  <tr>
+    <th>id</th>
+    <th>Product Id</th>
+    <th>Status</th>
+      <th>user id </th>>
+  </tr>
+  {% for displaydata in mymembers %}
+
+  <tr>
+    <td> {{displaydata.id}} </td>
+    <td> {{displaydata.product_id_id}} </td>
+
+    <td> {{  displaydata.status }}  </td>
+    <td> {{displaydata.user_id_id}} </td>
+
+      {% if displaydata.status == 'Progress' %}
+      <td>
+          <button type="button"  data-toggle="modal" data-target="#exampleModal{{displaydata.id}}" data-href-template="">
+      Complete
+          </button>
+
+      <form method="post" id ="exampleModalform{{displaydata.id}}"  action="/rat/{{displaydata.id}}" >
+    {% csrf_token %}
+<div class="modal fade" id="exampleModal{{displaydata.id}}" tabindex="-1" aria-labelledby="exampleModalLabel{{displaydata.id}}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel{{displaydata.id}}">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+                    <div class="rate bg-success py-3 text-white mt-3">
+
+                <h6 class="mb-0">Rate your product</h6>
+
+                <div class="rating" name="rating"  >
+                    <input type="radio" name="rating" value="5" id="rating5{{displaydata.id}}"><label for="rating5{{displaydata.id}}">☆</label>
+                    <input type="radio" name="rating" value="4" id="rating4{{displaydata.id}}"><label for="rating4{{displaydata.id}}">☆</label>
+                    <input type="radio" name="rating" value="3" id="rating3{{displaydata.id}}"><label for="rating3{{displaydata.id}}">☆</label>
+                    <input type="radio" name="rating" value="2" id="rating2{{displaydata.id}}"><label for="rating2{{displaydata.id}}">☆</label>
+                    <input type="radio" name="rating" value="1" id="rating1{{displaydata.id}}"><label for="rating1{{displaydata.id}}">☆</label>
+                </div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary"  >Save changes</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+      </td>
+      <td>
+
+          <form method="post" id ="cancel{{displaydata.id}}"  action="/productCancel/{{displaydata.id}}" >
+               {% csrf_token %}
+          <button type="submit" href="/productCancel/{{displaydata.id}}" > Cancel </button>
+          </form>
+      </td>
+  </tr>
+      {% endif %}
+      {% endfor %}
+</table>
+
+          <!-- Modal -->
+
+
+
+<button type="submit" href="logout">logout</button>
+
+</body>
+</html>

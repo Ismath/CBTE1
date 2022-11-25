@@ -31,6 +31,7 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
 
     #path('questions/', views.QuestionsAPIView.as_view()),
+    path('',views.index,name=''),
     path('consumption',views.consumption,name='consumption'),
     path(r'displaydata',views.tUserApi,name = 'displaydata'),
     path('signup',views.userregistration),
@@ -40,6 +41,7 @@ urlpatterns = [
     path('reporting',views.reporting,name = 'reporting'),
     #path('individualConsumption',views.individualConsumption,name = 'individualConsumption'),
     path(r'api/t_user', views.t_userApi),
+    path('addConsumption/<int:productProviderId>/<int:productId>',views.addConsumption, name = 'addConsumption'),
 
 
     path(r'api/t_user/update', CartItemViews.as_view()),
@@ -50,8 +52,8 @@ urlpatterns = [
     path(r'api/productProvider/<int:id>', ProductProvider.as_view()),
     #path('productProvider',views.productProvider),
     #path('showemp',views.showEmp),
-    path('rat/<int:id>',views.rat),
-    path('productCancel/<int:id>',views.productCancel),
+    path('rat/<int:id>',views.rat, name = 'rat'),
+    path('cancelConsumption/<int:id>',views.cancelConsumption),
 
     path(r'api/products', views.t_productsApi),
     path(r'api/products', ProductApi.as_view()),
