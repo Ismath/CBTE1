@@ -1,0 +1,14 @@
+name,district,creation_date,count(*)
+Grocery,Batticaloa,2022-11-24,2
+Grocery,Batticaloa,2022-11-25,6
+Grocery,Ampara,2022-11-24,1
+Grocery,Ampara,2022-11-25,5
+Grocery,Trincomalee,2022-11-25,3
+Pharmacy,Batticaloa,2022-11-24,1
+Pharmacy,Ampara,2022-11-25,3
+Pharmacy,Trincomalee,2022-11-25,3
+Pharmacy,Batticaloa,2022-11-25,2
+Fuel,Batticaloa,2022-11-24,1
+Fuel,Batticaloa,2022-11-25,5
+Fuel,Ampara,2022-11-25,3
+Fuel,Trincomalee,2022-11-25,3

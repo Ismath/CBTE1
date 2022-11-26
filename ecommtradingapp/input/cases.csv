@@ -1,5 +1,4 @@
 Product,Provider,District,Address,Product Provider ID,Product ID
-Grocery,ismath,Batticaloa,114 Upton,1,1
-Grocery,ismath,Batticaloa,Euston London,2,1
-Grocery,ismath,Batticaloa,04 Kattankudy,3,1
-Grocery,ismath,Batticaloa,Telecom Road,4,1
+Grocery,provider4,Batticaloa,114 Batticaloa,1,1
+Grocery,provider2,Batticaloa,114 Batticaloa,10,1
+Grocery,provider3,Batticaloa,114 Batticaloa,19,1

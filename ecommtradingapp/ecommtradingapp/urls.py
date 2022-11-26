@@ -39,6 +39,7 @@ urlpatterns = [
     path('addProductProvider',views.addProductProvider, name = 'addProductProvider'),
     path('logout',views.logout,name = 'logout'),
     path('reporting',views.reporting,name = 'reporting'),
+    path('inprogressReport',views.inprogressReport,name = 'inprogressReport'),
     #path('individualConsumption',views.individualConsumption,name = 'individualConsumption'),
     path(r'api/t_user', views.t_userApi),
     path('addConsumption/<int:productProviderId>/<int:productId>',views.addConsumption, name = 'addConsumption'),
