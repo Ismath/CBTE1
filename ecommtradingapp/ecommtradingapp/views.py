@@ -601,17 +601,18 @@ def reporting(request):
             )
             ####### end of connection ####
             my_data = pd.read_sql(
-                " SELECT ecommtradingapp_t_products.name,ecommtradingapp_t_product_provider.location,count(*),ecommtradingapp_t_consumptions.creation_date from ecommtradingapp_t_consumptions inner join ecommtradingapp_t_product_provider on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_product_provider.product_id_id inner join ecommtradingapp_t_products on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_products.product_id where ecommtradingapp_t_consumptions.status ='Completed' and ecommtradingapp_t_consumptions.creation_date between %s and %s group by ecommtradingapp_t_product_provider.location and ecommtradingapp_t_consumptions.product_id_id and ecommtradingapp_t_consumptions.creation_date ",
+                "SELECT  p.name , pp.district, c.creation_date, count(*) from ecommtradingapp_t_consumptions c, ecommtradingapp_t_products p, ecommtradingapp_t_product_provider pp where c.product_id_id=p.product_id and c.product_provider_id_id=pp.t_product_provider_id and c.status ='Completed' and c.creation_date between %s and %s group by p.name, pp.district, c.creation_date",
                 my_conn,params=[s,e])
+            print(my_data)
             df1 = pd.DataFrame(my_data)
-            df1.to_csv(r'C:\Users\LENOVO\Downloads\exported_data.csv',index=False)
+            df1.to_csv('output/report1.csv',index=False)
             print(my_data)
             #df= (" SELECT ecommtradingapp_t_products.name,ecommtradingapp_t_product_provider.location,count(*) from ecommtradingapp_t_consumptions inner join ecommtradingapp_t_product_provider on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_product_provider.product_id_id inner join ecommtradingapp_t_products on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_products.product_id where ecommtradingapp_t_consumptions.product_id_id = %s and ecommtradingapp_t_product_provider.location = %s and ecommtradingapp_t_consumptions.status ='Completed' group by ecommtradingapp_t_product_provider.location ")
             #data = [t, user]
             #cursor.execute(df, data)
             #res = cursor.fetchall()
 
-            return render(request, "template.html")
+            return render(request, "reportingModule.html")
 
         except Exception as e:
             print(e)
@@ -619,4 +620,41 @@ def reporting(request):
 
     return render(request, "reportingModule.html")
 
+
+def inprogressReport(request):
+    #results = t_products.objects.all()
+    # a = t_consumptions.filter()
+
+    if request.method == 'GET':
+        try:
+            import mysql.connector
+            import pandas as pd
+
+
+            my_conn = mysql.connector.connect(
+                host="localhost",
+                user="root",
+                passwd="",
+                database="cbte1_trading"
+            )
+            ####### end of connection ####
+            my_data = pd.read_sql(
+                "SELECT pr.name, (select uname from ecommtradingapp_t_user where user_id=pp.user_id_id) as uname, pp.district,pp.location, c.start_time, c.end_time, c.status from ecommtradingapp_t_consumptions c, ecommtradingapp_t_product_provider pp, ecommtradingapp_t_user u, ecommtradingapp_t_products pr where c.product_id_id=pr.product_id  and c.product_id_id=pp.product_id_id and c.product_provider_id_id=pp.t_product_provider_id and c.user_id_id=u.user_id and c.status='Progress'",
+                my_conn)
+            print(my_data)
+            df1 = pd.DataFrame(my_data)
+            df1.to_csv('output/report2.csv',index=False)
+            print(my_data)
+            #df= (" SELECT ecommtradingapp_t_products.name,ecommtradingapp_t_product_provider.location,count(*) from ecommtradingapp_t_consumptions inner join ecommtradingapp_t_product_provider on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_product_provider.product_id_id inner join ecommtradingapp_t_products on ecommtradingapp_t_consumptions.product_id_id = ecommtradingapp_t_products.product_id where ecommtradingapp_t_consumptions.product_id_id = %s and ecommtradingapp_t_product_provider.location = %s and ecommtradingapp_t_consumptions.status ='Completed' group by ecommtradingapp_t_product_provider.location ")
+            #data = [t, user]
+            #cursor.execute(df, data)
+            #res = cursor.fetchall()
+
+            return redirect("reporting")
+
+        except Exception as e:
+            print(e)
+
+
+    return redirect("reporting")
 
